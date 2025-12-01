@@ -1,0 +1,35 @@
+Package: optCQR
+Type: Package
+Title: Optimal Conformalized Quantile Regression
+Version: 1.0.0
+Authors@R: c(
+    person("Tianying", "Wang", email = "tianying.wang@example.com", role = c("aut", "cre")))
+Author: Tianying Wang [aut, cre]
+Maintainer: Tianying Wang <tianying.wang@example.com>
+Description: Implements the Optimal Conformalized Quantile Regression method.
+    Unlike standard CQR which uses fixed symmetric quantiles, optCQR optimizes
+    the lower quantile level to minimize prediction interval length while
+    maintaining valid coverage. The package also includes standard CQR variants
+    (CQR, CQR-m, CQR-r) for comparison. Particularly effective for asymmetric
+    conditional distributions.
+License: MIT + file LICENSE
+Encoding: UTF-8
+RoxygenNote: 7.3.1
+Depends:
+    R (>= 3.5.0)
+Imports:
+    Rcpp (>= 1.0.0),
+    stats
+Suggests:
+    quantregForest,
+    quantreg,
+    randomForest,
+    ggplot2,
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+LinkingTo: Rcpp
+NeedsCompilation: yes
+URL: https://github.com/tianyingw/optCQR
+BugReports: https://github.com/tianyingw/optCQR/issues
+VignetteBuilder: knitr

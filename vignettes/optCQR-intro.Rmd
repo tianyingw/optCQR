@@ -1,0 +1,114 @@
+---
+title: "Introduction to optCQR"
+author: "Tianying Wang"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to optCQR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## Overview
+
+The `optCQR` package implements **Optimal Conformalized Quantile Regression** for constructing prediction intervals. This vignette demonstrates:
+
+1. The basic workflow for constructing prediction intervals
+2. How optCQR improves upon standard CQR for asymmetric distributions
+
+## Installation
+
+```{r install, eval = FALSE}
+# Install from GitHub
+devtools::install_github("tianyingw/optCQR")
+```
+
+## Background: Conformalized Quantile Regression
+
+Conformalized Quantile Regression (CQR) is a method for constructing prediction intervals with **guaranteed finite-sample coverage**. Given a miscoverage level $\alpha$ (e.g., 0.1 for 90% coverage), CQR guarantees:
+
+$$P(Y_{n+1} \in \hat{C}(X_{n+1})) \geq 1 - \alpha$$
+
+Standard CQR uses symmetric quantiles at $\alpha/2$ and $1-\alpha/2$. However, when the conditional distribution $Y|X$ is asymmetric, this may not be optimal.
+
+## The optCQR Innovation
+
+optCQR optimizes the lower quantile level $\tau$ to minimize the prediction interval length while maintaining coverage. For a fixed coverage of $1-\alpha$, the interval is $[\hat{q}_\tau(X), \hat{q}_{\tau+1-\alpha}(X)]$.
+
+**Key insight**: For asymmetric distributions, the interval $[\tau, \tau + (1-\alpha)]$ may be shorter than $[\alpha/2, 1-\alpha/2]$ for some value of $\tau$.
+
+## Basic Example
+
+```{r basic-example, eval = FALSE}
+library(optCQR)
+
+# Generate data with asymmetric (log-normal) errors
+set.seed(123)
+n <- 500
+X <- runif(n, 0, 10)
+mu_X <- 2 + 3 * X
+sigma_X <- 0.2 + 0.15 * X
+Y <- mu_X + (exp(rnorm(n, 0, sigma_X)) - exp(sigma_X^2/2))
+data <- data.frame(X = X, Y = Y)
+
+# Split data: 50% train, 25% calibration, 25% test
+splits <- split_data(data, seed = 42)
+
+# Run optCQR
+result <- optCQR(splits, alpha = 0.1, method = "rf")
+
+# Evaluate
+evaluate_intervals(result, splits$test$Y)
+```
+
+## When Does optCQR Help?
+
+optCQR provides the most benefit when:
+
+1. **Asymmetric conditional distributions**: Log-normal, exponential, or skewed errors
+2. **Varying asymmetry across X**: The direction of skewness changes with predictors
+3. **Zero-inflated or bounded responses**: When the response has natural constraints
+
+For symmetric distributions (like normal errors), optCQR will typically select $\tau \approx \alpha/2$, yielding similar results to standard CQR.
+
+## Advanced Usage
+
+### Custom Tau Grid
+
+```{r tau-grid, eval = FALSE}
+# Use a finer tau grid for more precise optimization
+result_fine <- optCQR(splits, alpha = 0.1,
+                      tau_grid = seq(0.005, 0.1, by = 0.001))
+```
+
+### Domain Constraints
+
+```{r constraints, eval = FALSE}
+# For bounded responses (e.g., Y >= 0)
+result_bounded <- optCQR(splits, alpha = 0.1,
+                         domain_constraints = list(lower = 0, upper = Inf))
+```
+
+### Adaptive Adjustment
+
+```{r adaptive, eval = FALSE}
+# Use asymmetric conformal adjustment based on mean optimal tau
+result_adaptive <- optCQR(splits, alpha = 0.1, adaptive_adjustment = TRUE)
+```
+
+## Conclusion
+
+The `optCQR` package provides a principled way to construct shorter prediction intervals while maintaining valid coverage guarantees. optCQR is particularly effective for asymmetric conditional distributions where standard CQR wastes coverage budget on sparse tail regions.
+
+## References
+
+Wang, T. et al. (2024). Optimal Conformalized Quantile Regression.
