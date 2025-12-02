@@ -4,5 +4,5 @@ NULL
 
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("optCQR: Optimal Conformalized Quantile Regression")
-  packageStartupMessage("For help, type: ?oqsm")
+  packageStartupMessage("For help, type: ?optCQR")
 }
