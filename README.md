@@ -107,7 +107,7 @@ optCQR(splits, alpha = 0.1, method = "linear")
 
 ## References
 
-Wang, T. (2025+). Optimal Conformal Prediction under Asymmetry: A Quantile Selection Approach.
+Wang, T. (2025+). Optimal conformalized quantile regression via adaptive quantile selection.
 
 ## License
 
